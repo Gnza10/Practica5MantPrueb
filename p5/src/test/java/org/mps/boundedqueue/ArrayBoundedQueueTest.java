@@ -66,6 +66,12 @@ public class ArrayBoundedQueueTest{
 
             assertThatExceptionOfType(FullBoundedQueueException.class).isThrownBy(() -> queue.put(5));
         }
+        @Test
+        @DisplayName("Putting a null element")
+        public void test_PuttingANullElement_throwsIllegalArgumentException(){
+            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> queue.put(null));
+        }
+
 
         @Test
         @DisplayName("Test get con una lista vacia")
