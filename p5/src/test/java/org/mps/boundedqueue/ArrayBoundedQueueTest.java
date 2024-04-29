@@ -5,9 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import net.bytebuddy.asm.Advice.OffsetMapping.Factory.Illegal;
-
-import static org.assertj.core.api.Assertions.*; 
+import static org.assertj.core.api.Assertions.*;
 
 public class ArrayBoundedQueueTest{
     private ArrayBoundedQueue<Integer> queue;
@@ -68,14 +66,12 @@ public class ArrayBoundedQueueTest{
 
             assertThatExceptionOfType(FullBoundedQueueException.class).isThrownBy(() -> queue.put(5));
         }
-<<<<<<< Updated upstream
-=======
-
         @Test
         @DisplayName("Putting a null element")
         public void test_PuttingANullElement_throwsIllegalArgumentException(){
             assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> queue.put(null));
         }
+
 
         @Test
         @DisplayName("Test get con una lista vacia")
@@ -193,7 +189,6 @@ public class ArrayBoundedQueueTest{
 
             assertThat(actualValue).isEqualTo(expectedvalue);
         }
->>>>>>> Stashed changes
     }
 
 }
