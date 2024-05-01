@@ -18,22 +18,21 @@ public class ArrayBoundedQueueTest{
     @Nested
     @DisplayName("When a new queue is created")
     public class creatingQueue{
-
         @Test
-        @DisplayName("Queue with size > 0")
-        public void test_EmptyQueue_size0(){
-            queue = new ArrayBoundedQueue<>(4);
-        
-            assertThat(queue).hasSize(0);
-        }
+        @DisplayName("Assert that queue size is 0")
+        public void test_NewQueueSizeZero(){
+            ArrayBoundedQueue<Integer> queueEx = new ArrayBoundedQueue<>(4);
 
+            assertThat(queueEx.size()).isEqualTo(0);
+        }
         @Test
         @DisplayName("Queue with size = 0")
         public void test_EmptyQueueSizeZero_throwsIllegalArgumentException(){
             int capacity = 0;
         
             assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> new ArrayBoundedQueue<>(capacity));               
+                .isThrownBy(() -> new ArrayBoundedQueue<>(capacity))
+                    .withMessage("ArrayBoundedException: capacity must be positive");               
         }
     }
 
@@ -51,8 +50,7 @@ public class ArrayBoundedQueueTest{
             queue.put(value2);
 
             assertThat(queue).isNotEmpty()
-                .containsExactly(2, 3)
-                .hasSize(2);
+                .containsExactly(2, 3);
         }
 
         @Test
@@ -64,14 +62,17 @@ public class ArrayBoundedQueueTest{
                 queue.put(values);
             }
 
-            assertThatExceptionOfType(FullBoundedQueueException.class).isThrownBy(() -> queue.put(5));
+            assertThatExceptionOfType(FullBoundedQueueException.class)
+                .isThrownBy(() -> queue.put(5))
+                    .withMessage("put: full bounded queue");
         }
         @Test
         @DisplayName("Putting a null element")
         public void test_PuttingANullElement_throwsIllegalArgumentException(){
-            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> queue.put(null));
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> queue.put(null))
+                    .withMessage("put: element cannot be null");
         }
-
 
         @Test
         @DisplayName("Test get con una lista vacia")
@@ -85,40 +86,45 @@ public class ArrayBoundedQueueTest{
         @Test
         @DisplayName("Test get con una lista de un elemento")
         public void testGet_NotEmpty_ReturnItem(){
-            queue.put(1);
-            int expectedvalue = 1;
+            int val = 1;
 
-            int actualValue = queue.get();
+            queue.put(val);
 
-            assertThat(actualValue).isEqualTo(expectedvalue);
+            assertThat(queue).isNotEmpty()
+                .containsExactly(1)
+                .hasSize(1);
         }
 
         @Test
         @DisplayName("Test getFirst cuando el primer elemento del buffer esta en la posicion 2")
         public void testGetFirst_WithFirstElementInPosition1_Return1(){
-            queue.put(1);
-            queue.put(2);
+            int val = 1;
+            int val2 = 2;
+
+            queue.put(val);
+            queue.put(val2);
             queue.get();
-            int expectedvalue = 1;
 
-            int actualValue = queue.getFirst();
-
-            assertThat(actualValue).isEqualTo(expectedvalue);
+            assertThat(queue).isNotEmpty()
+                .containsExactly(2)
+                .hasSize(1);   
+            assertThat(queue.getFirst()).isEqualTo(1);         
         }
 
         @Test
         @DisplayName("Test getLast cuando el ultimo elemento del buffer esta en la posicion 0")
         public void testGetFirst_WithLastElementInPosition0_Return0(){
-            queue.put(1);
-            queue.put(2);
-            queue.put(3);
-            queue.put(4);
+            int values;
+
+            for(values = 0; values < 4; values++){
+                queue.put(values);
+            }
             queue.get();
-            int expectedvalue = 0;
 
-            int actualValue = queue.getLast();
-
-            assertThat(actualValue).isEqualTo(expectedvalue);
+            assertThat(queue).isNotEmpty()
+                .containsExactly(1, 2, 3)
+                .hasSize(3);
+            assertThat(queue.getLast()).isEqualTo(0);
         }
 
     }
@@ -130,65 +136,83 @@ public class ArrayBoundedQueueTest{
         @Test
         @DisplayName("Test isFull cuando la cola tiene un elemento")
         public void testAdvance_Size4With1Element_ReturnFalse(){
-            queue.put(1);
+            int val = 1;
 
-            boolean actualValue = queue.isFull();
+            queue.put(val);;
 
-            assertThat(actualValue).isFalse();
+            assertThat(queue.isFull()).isFalse();
+            assertThat(queue).hasSize(1)
+                .containsExactly(1)
+                .hasSize(1)
+                .doesNotContainNull();
         }
 
         @Test
         @DisplayName("Test isFull cuando la cola es de tamaño 4 y tiene 4 elementos")
         public void testAdvance_Size4With4Element_ReturnTrue(){
-            queue.put(1);
-            queue.put(2);
-            queue.put(3);
-            queue.put(4);
+            int values;
 
-            boolean actualValue = queue.isFull();
+            for(values = 0; values < 4; values++){
+                queue.put(values);
+            }
 
-            assertThat(actualValue).isTrue();
+            assertThat(queue.isFull()).isTrue();
+            assertThat(queue).hasSize(4)
+                .containsExactly(0, 1, 2, 3)
+                .hasSize(4)
+                .doesNotContainNull();
         }
 
         @Test
         @DisplayName("Test isEmpty cuando la cola tiene un elemento")
         public void testIsEmpty_Size4With1Element_ReturnFalse(){
-            queue.put(1);
+            int val = 1;
 
-            boolean actualValue = queue.isEmpty();
+            queue.put(val);
 
-            assertThat(actualValue).isFalse();
+            
+            assertThat(queue).hasSize(1)
+                .containsExactly(1)
+                .hasSize(1)
+                .doesNotContainNull()
+                .isNotEmpty();
         }
 
         @Test
         @DisplayName("Test isEmpty cuando la cola esta vacia")
         public void testAdvance_Size4WithNoElement_ReturnFalse(){
+            int val =  1;
 
-            boolean actualValue = queue.isEmpty();
+            queue.put(val);
+            queue.get();
 
-            assertThat(actualValue).isTrue();
+            assertThat(queue).hasSize(0)
+                .isEmpty();
         }
 
         @Test
         @DisplayName("Test size cuando la cola esta recien inicializada")
         public void testSize_WithNoElement_Return0(){
-            int expectedvalue = 0;
+            int val = 1;
 
-            int actualValue = queue.size();
+            queue.put(val);
+            queue.get();
 
-            assertThat(actualValue).isEqualTo(expectedvalue);
+            assertThat(queue).hasSize(0)
+                .isEmpty();
         }
 
         @Test
         @DisplayName("Test size cuando la cola tiene un elemento")
         public void testSize_With1Element_Return1(){
-            queue.put(1);
-            int expectedvalue = 1;
+            int val = 1;
 
-            int actualValue = queue.size();
+            queue.put(val);
 
-            assertThat(actualValue).isEqualTo(expectedvalue);
+            assertThat(queue).hasSize(1)
+                .containsExactly(1)
+                .hasSize(1)
+                .doesNotContainNull();
         }
     }
-
 }
